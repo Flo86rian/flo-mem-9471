@@ -4,15 +4,56 @@
     <meta charset="UTF-8">
     <meta name="robots" content="noindex, nofollow">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flo Memory</title>
+    <title>Chat Zusammenfassungen</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f9f9f9; }
+        h1 { text-align: center; }
+        pre { white-space: pre-wrap; background: #eee; padding: 15px; border-radius: 8px; overflow-x: auto; }
+        hr { margin: 30px 0; border: none; border-top: 1px solid #ccc; }
+    </style>
 </head>
 <body>
-    <h1>Flo Memory</h1>
-    <p>Diese Seite dient nur zur persönlichen Projektübersicht. Google kann diese Seite nicht finden.</p>
+    <h1>Alle Chat-Dateien</h1>
+    <div id="output">Lade Dateien...</div>
 
-    <h2>Chat-Verläufe & Notizen</h2>
-    <p>Hier kannst du deine Zusammenfassungen, Chattexte oder Dateien einfügen.</p>
+    <script>
+        async function loadFiles() {
+            const folder = "chats/";
+            const api = `https://api.github.com/repos/flo86rian/flo-mem-9471/contents/${folder}`;
+            const container = document.getElementById("output");
 
-    <p><em>Hinweis: Diese Seite ist nur für dich sichtbar, wenn du den geheimen Link kennst.</em></p>
+            try {
+                const res = await fetch(api);
+                const files = await res.json();
+
+                if (!Array.isArray(files)) {
+                    container.innerHTML = "<p>Keine Dateien gefunden.</p>";
+                    return;
+                }
+
+                let html = "";
+
+                for (const file of files) {
+                    if (!file.name.endsWith(".txt")) continue;
+
+                    const fileRes = await fetch(file.download_url);
+                    const text = await fileRes.text();
+
+                    html += `
+                        <h2>${file.name}</h2>
+                        <pre>${text.replace(/[<>]/g, (c) => ({'<':'&lt;','>':'&gt;'}[c]))}</pre>
+                        <hr>
+                    `;
+                }
+
+                container.innerHTML = html;
+
+            } catch (err) {
+                container.innerHTML = `<p>Fehler: ${err.message}</p>`;
+            }
+        }
+
+        loadFiles();
+    </script>
 </body>
 </html>
