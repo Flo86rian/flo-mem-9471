@@ -4,27 +4,29 @@
     <meta charset="UTF-8">
     <meta name="robots" content="noindex, nofollow">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat Zusammenfassungen</title>
+    <title>Chat-Zusammenfassungen</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #fafafa; }
+        h1 { text-align: center; }
+        pre { white-space: pre-wrap; background:#eee; padding:20px; border-radius:8px; }
+        hr { margin: 40px 0; border: 1px solid #ccc; }
+    </style>
 </head>
 <body>
     <h1>Alle Chat-Dateien</h1>
-    <p>Dies ist eine Übersicht aller Chat-Verläufe im Ordner <code>/chats</code>.</p>
-
-    <div id="output">Lade Dateien...</div>
+    <div id="output">Lade Chat-Dateien...</div>
 
     <script>
-        async function loadFiles() {
-            const folder = "chats/";
-            const api = `https://api.github.com/repos/flo86rian/flo-mem-9471/contents/${folder}`;
-
-            const container = document.getElementById("output");
-
+        async function loadChats() {
+            const api = 'https://api.github.com/repos/Flo86rian/flo-mem-9471/contents/chats';
+            const container = document.getElementById('output');
+            
             try {
                 const res = await fetch(api);
                 const files = await res.json();
 
                 if (!Array.isArray(files)) {
-                    container.innerHTML = "<p>Keine Dateien gefunden.</p>";
+                    container.innerHTML = "<p>Keine Chat-Dateien gefunden.</p>";
                     return;
                 }
 
@@ -36,11 +38,10 @@
                     const fileRes = await fetch(file.download_url);
                     const text = await fileRes.text();
 
+                    // Hier wird Text jedes Chatfiles in einem Block angezeigt
                     html += `
                         <h2>${file.name}</h2>
-                        <pre style="white-space: pre-wrap; background:#eee; padding:20px; border-radius:8px;">
-${text.replace(/[<>]/g, (c) => ({'<':'&lt;','>':'&gt;'}[c]))}
-                        </pre>
+                        <pre>${text.replace(/[<>]/g, (c) => ({'<':'&lt;','>':'&gt;'}[c]))}</pre>
                         <hr>
                     `;
                 }
@@ -52,7 +53,7 @@ ${text.replace(/[<>]/g, (c) => ({'<':'&lt;','>':'&gt;'}[c]))}
             }
         }
 
-        loadFiles();
+        loadChats();
     </script>
 </body>
 </html>
