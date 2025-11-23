@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Zusammenfassungen</title>
+</head>
+<body>
+    <h1>Alle Chat-Dateien</h1>
+    <p>Dies ist eine Übersicht aller Chat-Verläufe im Ordner <code>/chats</code>.</p>
+
+    <div id="output">Lade Dateien...</div>
+
+    <script>
+        async function loadFiles() {
+            const folder = "chats/";
+            const api = `https://api.github.com/repos/flo86rian/flo-mem-9471/contents/${folder}`;
+
+            const container = document.getElementById("output");
+
+            try {
+                const res = await fetch(api);
+                const files = await res.json();
+
+                if (!Array.isArray(files)) {
+                    container.innerHTML = "<p>Keine Dateien gefunden.</p>";
+                    return;
+                }
+
+                let html = "";
+
+                for (const file of files) {
+                    if (!file.name.endsWith(".txt")) continue;
+
+                    const fileRes = await fetch(file.download_url);
+                    const text = await fileRes.text();
+
+                    html += `
+                        <h2>${file.name}</h2>
+                        <pre style="white-space: pre-wrap; background:#eee; padding:20px; border-radius:8px;">
+${text.replace(/[<>]/g, (c) => ({'<':'&lt;','>':'&gt;'}[c]))}
+                        </pre>
+                        <hr>
+                    `;
+                }
+
+                container.innerHTML = html;
+
+            } catch (err) {
+                container.innerHTML = `<p>Fehler: ${err.message}</p>`;
+            }
+        }
+
+        loadFiles();
+    </script>
+</body>
+</html>
